@@ -1,7 +1,7 @@
 # Octoco Backend Design Document
 ## Payment System with Deposit & Withdrawal Functionality
 
-**Author:** [Your Name]  
+**Author:** Chad Chandrapaul
 **Date:** October 16, 2025  
 **Purpose:** Technical design for a secure, consistent payment management system
 
@@ -71,37 +71,27 @@
 
 ### High-Level Component Diagram
 
+
+```mermaid
+flowchart TD
+    A[Internet]
+    B[Azure Container App
+    ASP.NET Core API
+    Auth
+    Deposit/Withdraw
+    Webhook Handler]
+    C1[Azure Key Vault]
+    C2[Azure SQL Database with Private Endpoint]
+    C3[Revio Payment Provider]
+    D[Azure Function ReconciliationJob]
+
+    A --> B
+    B --> C1
+    B --> C2
+    B --> C3
+    D --> C2
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         Internet                             │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
-              ┌──────────────────────┐
-              │  Azure Container App │
-              │   (ASP.NET Core API) │
-              │                      │
-              │  - Authentication    │
-              │  - Deposit/Withdraw  │
-              │  - Webhook Handler   │
-              └──────────┬───────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         │               │               │
-         ▼               ▼               ▼
-    ┌────────┐    ┌─────────────┐  ┌──────────┐
-    │ Azure  │    │   Azure SQL │  │   Revio  │
-    │Key Vault│   │  Database   │  │ Payment  │
-    │         │    │(Private EP) │  │ Provider │
-    └────────┘    └─────────────┘  └──────────┘
-                         ▲
-                         │
-                  ┌──────────────┐
-                  │Azure Function│
-                  │(Reconciliation│
-                  │   Job)       │
-                  └──────────────┘
-```
+
 
 ### Authentication & Authorization
 
@@ -202,6 +192,53 @@ Indexes:
 - Non-clustered on received_at (for time-based queries)
 ```
 
+### ERD Diagrams for Database
+
+```mermaid
+erDiagram
+    USERS {
+        GUID id PK
+        string email
+        string password_hash
+        decimal balance
+        datetime created_at
+        datetime updated_at
+        boolean is_locked
+        int failed_login_attempts
+    }
+
+    TRANSACTIONS {
+        GUID id PK
+        GUID user_id FK
+        string external_payment_id
+        string idempotency_key
+        enum type "deposit, withdrawal"
+        decimal amount
+        string currency
+        enum status "pending, completed, failed, cancelled"
+        datetime created_at
+        datetime updated_at
+        datetime completed_at
+        json metadata
+    }
+
+    WEBHOOKLOGS {
+        GUID id PK
+        string external_payment_id
+        json payload
+        string signature
+        boolean signature_valid
+        boolean processed_successfully
+        string error_message
+        datetime received_at
+        datetime processed_at
+    }
+
+    USERS ||--o{ TRANSACTIONS : "has"
+    TRANSACTIONS ||--o{ WEBHOOKLOGS : "triggered by"
+
+```
+
 ### Balance Consistency Strategy
 
 **Dual approach for reliability:**
@@ -281,37 +318,64 @@ Body: { "payment_id": "pay_xyz789", "status": "completed", "amount": 100.00 }
 
 ### Sequence Diagram
 
-```
-User          Frontend      API           Database      Revio
- |              |            |               |            |
- |--Deposit---->|            |               |            |
- |              |--POST /deposits----------->|            |
- |              |            |--Check idempotency------->|
- |              |            |<-----------OK-------------|
- |              |            |--Create pending tx------->|
- |              |            |<---------Success----------|
- |              |            |--Create payment---------->|
- |              |            |<---checkout_url-----------|
- |              |            |--Store payment_id-------->|
- |              |<--checkout_url-------------|            |
- |<--Redirect---|            |               |            |
- |                           |               |            |
- |--Complete payment------------------------>|            |
- |                           |               |<-Webhook---|
- |                           |<-POST /webhooks|           |
- |                           |--Verify signature          |
- |                           |--Find tx by payment_id---->|
- |                           |<---------tx data-----------|
- |                           |--BEGIN TRANSACTION-------->|
- |                           |--Update tx status--------->|
- |                           |--Credit balance---------->|
- |                           |--COMMIT------------------>|
- |                           |----------200 OK---------->|
+``` mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Database
+    participant Revio
+
+    User->>Frontend: Click "Deposit $100"
+    Frontend->>API: POST /api/deposits {amount, idempotency_key}
+    API->>Database: Check idempotency_key
+    Database-->>API: OK
+    API->>Database: Create pending transaction
+    Database-->>API: Success
+    API->>Revio: POST /payments {amount, currency, return_url}
+    Revio-->>API: checkout_url
+    API->>Database: Store payment_id
+    API-->>Frontend: Return checkout_url
+    User->>Revio: Complete payment
+    Revio->>API: POST /api/webhooks/revio {payment_id, status, amount}
+    API->>API: Verify signature
+    API->>Database: Find transaction by payment_id
+    Database-->>API: Transaction data
+    API->>Database: BEGIN TRANSACTION
+    API->>Database: Update transaction status = completed
+    API->>Database: Credit user balance
+    API->>Database: COMMIT
+    API-->>Revio: 200 OK
+
 ```
 
 ---
 
 ## 5. Withdrawal Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Database
+    participant Revio
+
+    User->>Frontend: Click "Withdraw $50"
+    Frontend->>API: POST /api/withdrawals {amount, idempotency_key}
+    API->>Database: Begin transaction (Serializable)
+    API->>Database: Lock user row FOR UPDATE
+    API->>Database: Calculate available balance
+    API->>Database: Validate sufficient funds
+    API->>Database: Create withdrawal transaction (pending)
+    API->>Revio: POST /payouts {amount, bank details}
+    Revio-->>API: payout_id
+    API->>Database: Commit transaction
+    API-->>Frontend: Return pending status
+    Revio->>API: POST /api/webhooks/revio {payout_id, status}
+    API->>Database: Update transaction status
+
+```
 
 ### Key Challenge: Preventing Overdrafts
 
@@ -372,14 +436,16 @@ Body: { "payout_id": "payout_xyz", "status": "completed" }
 
 ### State Machine for Transaction Status
 
-```
-Valid Transitions:
-pending → completed ✓
-pending → failed ✓
-pending → cancelled ✓
-completed → [terminal] ✗
-failed → [terminal] ✗
-cancelled → [terminal] ✗
+```mermaid
+stateDiagram-v2
+    [*] --> pending
+    pending --> completed
+    pending --> failed
+    pending --> cancelled
+    completed --> [*]
+    failed --> [*]
+    cancelled --> [*]
+
 ```
 
 **Invalid transitions are rejected and logged for investigation.**
