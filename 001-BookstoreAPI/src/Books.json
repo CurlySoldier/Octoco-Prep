@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "title": "to kill a mockingbird",
+    "author": "test",
+    "genre": "fantasy",
+    "price": "1000000",
+    "createdat": "2025-10-16T17:22:06.770Z"
+  },
+  {
+    "id": 2,
+    "title": "1984",
+    "author": "test",
+    "genre": "dystopian",
+    "price": "1500000",
+    "createdat": "2025-10-16T17:22:06.770Z"
+  },
+  {
+    "id": 3,
+    "title": "the great gatsby",
+    "author": "test",
+    "genre": "classic",
+    "price": "2000000",
+    "createdat": "2025-10-16T17:22:06.770Z"
+  },
+  {
+    "id": 4,
+    "title": "test",
+    "author": "test",
+    "genre": "test",
+    "price": "123",
+    "createdat": "2025-10-16T17:50:04.165Z"
+  },
+  {
+    "id": 5,
+    "title": "test",
+    "author": "test",
+    "genre": "test",
+    "price": "123",
+    "createdat": "2025-10-16T17:50:06.202Z"
+  },
+  {
+    "id": 6,
+    "title": "test",
+    "author": "test",
+    "genre": "test",
+    "price": "123",
+    "createdat": "2025-10-16T17:50:12.630Z"
+  },
+  {
+    "id": 7,
+    "createdat": "2025-10-16T17:53:06.040Z",
+    "title": "test",
+    "author": "test",
+    "genre": "test",
+    "price": "123"
+  }
+]

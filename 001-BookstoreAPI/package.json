@@ -4,7 +4,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "express": "^4.19.2"
@@ -13,6 +14,9 @@
     "@types/express": "^4.17.21",
     "@types/node": "^20.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
   }
 }

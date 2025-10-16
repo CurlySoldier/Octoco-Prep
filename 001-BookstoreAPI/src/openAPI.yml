@@ -1,0 +1,252 @@
+openapi: 3.0.3  
+info:  
+  title: Book Store API  
+  version: 1.0.0  
+  description: API to manage books and calculate discounted prices by genre  
+  
+servers:  
+  - url: http://localhost:3000  
+    description: Local development server  
+  
+paths:  
+  /books:  
+    post:  
+      summary: Create a new book  
+      requestBody:  
+        required: true  
+        content:  
+          application/json:  
+            schema:  
+              $ref: '#/components/schemas/BookCreate'  
+      responses:  
+        '201':  
+          description: Book created successfully  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Book'  
+        '400':  
+          description: Missing or invalid input data  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Error'  
+  
+  /books/{id}:  
+    get:  
+      summary: Get a book by ID  
+      parameters:  
+        - name: id  
+          in: path  
+          required: true  
+          description: Book ID  
+          schema:  
+            type: integer  
+            format: int64  
+      responses:  
+        '200':  
+          description: Book found  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Book'  
+        '404':  
+          description: Book not found  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Error'  
+  
+    put:  
+      summary: Update a book by ID  
+      parameters:  
+        - name: id  
+          in: path  
+          required: true  
+          description: Book ID  
+          schema:  
+            type: integer  
+            format: int64  
+      requestBody:  
+        required: true  
+        content:  
+          application/json:  
+            schema:  
+              $ref: '#/components/schemas/BookUpdate'  
+      responses:  
+        '200':  
+          description: Book updated  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Book'  
+        '404':  
+          description: Book not found  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Error'  
+  
+    delete:  
+      summary: Delete a book by ID  
+      parameters:  
+        - name: id  
+          in: path  
+          required: true  
+          description: Book ID  
+          schema:  
+            type: integer  
+            format: int64  
+      responses:  
+        '204':  
+          description: Book deleted successfully  
+        '404':  
+          description: Book not found  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Error'  
+  
+  /books/discounted-price:  
+    get:  
+      summary: Calculate total discounted price for books in a genre  
+      parameters:  
+        - name: genre  
+          in: query  
+          required: true  
+          description: Genre to filter books by  
+          schema:  
+            type: string  
+        - name: discount  
+          in: query  
+          required: true  
+          description: Discount percentage (0-100)  
+          schema:  
+            type: number  
+            format: float  
+      responses:  
+        '200':  
+          description: Total discounted price calculated  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/DiscountedPriceResponse'  
+        '400':  
+          description: Missing or invalid query parameters  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Error'  
+        '404':  
+          description: No books found in the specified genre  
+          content:  
+            application/json:  
+              schema:  
+                $ref: '#/components/schemas/Error'  
+  
+components:  
+  schemas:  
+    Book:  
+      type: object  
+      properties:  
+        id:  
+          type: integer  
+          format: int64  
+          example: 1  
+        title:  
+          type: string  
+          example: "The Great Gatsby"  
+        author:  
+          type: string  
+          example: "F. Scott Fitzgerald"  
+        genre:  
+          type: string  
+          example: "Fiction"  
+        price:  
+          type: number  
+          format: float  
+          example: 19.99  
+        createdat:  
+          type: string  
+          format: date-time  
+          example: "2023-06-01T12:34:56Z"  
+      required:  
+        - id  
+        - title  
+        - author  
+        - genre  
+        - price  
+        - createdat  
+  
+    BookCreate:  
+      type: object  
+      properties:  
+        title:  
+          type: string  
+          example: "The Great Gatsby"  
+        author:  
+          type: string  
+          example: "F. Scott Fitzgerald"  
+        genre:  
+          type: string  
+          example: "Fiction"  
+        price:  
+          type: number  
+          format: float  
+          example: 19.99  
+      required:  
+        - title  
+        - author  
+        - genre  
+        - price  
+  
+    BookUpdate:  
+      type: object  
+      properties:  
+        title:  
+          type: string  
+          example: "The Great Gatsby"  
+        author:  
+          type: string  
+          example: "F. Scott Fitzgerald"  
+        genre:  
+          type: string  
+          example: "Fiction"  
+        price:  
+          type: number  
+          format: float  
+          example: 19.99  
+      # All fields optional for partial update  
+  
+    DiscountedPriceResponse:  
+      type: object  
+      properties:  
+        genre:  
+          type: string  
+          example: "Fiction"  
+        discountPercentage:  
+          type: number  
+          format: float  
+          example: 10  
+        totalOriginalPrice:  
+          type: number  
+          format: float  
+          example: 200  
+        totalDiscountedPrice:  
+          type: number  
+          format: float  
+          example: 180  
+      required:  
+        - genre  
+        - discountPercentage  
+        - totalOriginalPrice  
+        - totalDiscountedPrice  
+  
+    Error:  
+      type: object  
+      properties:  
+        error:  
+          type: string  
+          example: "Book not found"  
+      required:  
+        - error  
