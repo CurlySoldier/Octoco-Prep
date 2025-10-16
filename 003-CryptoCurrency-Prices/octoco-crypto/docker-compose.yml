@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    image: octoco-crypto:latest
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+
+  # Optional dev service (serve via vite dev server). Useful for local development in container.
+  dev:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5174:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true

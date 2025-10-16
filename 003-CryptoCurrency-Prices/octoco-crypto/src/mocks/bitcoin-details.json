@@ -1,0 +1,14 @@
+{
+  "id": "bitcoin",
+  "symbol": "btc",
+  "name": "Bitcoin",
+  "image": { "large": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png" },
+  "market_data": {
+    "current_price": { "zar": 780000, "usd": 42000 },
+    "market_cap": { "zar": 1500000000000, "usd": 80000000000 },
+    "total_supply": 21000000,
+    "circulating_supply": 19000000
+  },
+  "market_cap_rank": 1,
+  "description": { "en": "Bitcoin is a decentralized digital currency..." }
+}
