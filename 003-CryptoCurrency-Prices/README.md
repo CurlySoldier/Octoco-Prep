@@ -5,7 +5,16 @@ A React + TypeScript app to view cryptocurrency prices, market cap, and details.
 ## Prerequisites
 - Node.js (v18+ recommended)
 - npm
-- Docker (optional)
+- Docker (optional) 
+- docker compose
+
+## Note
+- If you are in the root of the repo you need to run 
+```bash
+cd 003-CryptoCurrency-Prices
+```
+to get to the project root
+
 
 ---
 
@@ -15,11 +24,7 @@ A React + TypeScript app to view cryptocurrency prices, market cap, and details.
 1. Ensure Docker is installed on your device.
 2. In the project root, build the Docker image:
    ```bash
-   docker build -t crypto-prices-app .
-   ```
-3. Run the container:
-   ```bash
-   docker run -p 5173:5173 crypto-prices-app
+   docker compose up
    ```
 4. The app will be available at `http://localhost:5173`.
 
@@ -50,8 +55,4 @@ A React + TypeScript app to view cryptocurrency prices, market cap, and details.
 
 ## Notes
 - API requests use CoinGecko; no API key required.
-- For testing, run:
-  ```bash
-  npm test
-  ```
 - Configuration (port, etc.) can be adjusted in `vite.config.ts`.

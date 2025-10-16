@@ -151,7 +151,7 @@ router.get('/discounted-price', (req, res) => {
  *       404:
  *         description: Book not found
  */
-router.get('/:id(\d+)', (req, res) => {
+router.get('/:id(\\d+)', (req, res) => {
   const id = parseInt(req.params.id, 10);
   const book = repo.findById(id);
   if (!book) return res.status(404).json({ error: 'Book not found 1' });

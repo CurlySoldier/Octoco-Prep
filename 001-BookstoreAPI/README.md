@@ -1,20 +1,5 @@
-# API Documentation & Testing
 
-This project automatically generates an OpenAPI (Swagger) specification from JSDoc comments in the code using `swagger-jsdoc`.
 
-You can view and test the API interactively using Swagger UI:
-
-1. Start the server:
-   ```bash
-   npm start
-   ```
-2. Open your browser and go to [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
-   - The Swagger UI page will appear, showing all documented endpoints and models.
-   - You can try out requests directly from the browser.
-
-The OpenAPI spec is generated from JSDoc comments in `src/index.ts` and served at `/api-docs`.
-
-If you add or change routes, update the JSDoc comments to keep the documentation in sync.
 # BookstoreAPI
 
 This project is a simple Bookstore API built with TypeScript, Node.js, and Express. It provides endpoints for managing books and calculating discounts.
@@ -23,6 +8,13 @@ This project is a simple Bookstore API built with TypeScript, Node.js, and Expre
 - Node.js (v18+ recommended)
 - npm
 - Docker (optional)
+
+## Note
+- If you are in the root of the repo you need to run 
+```bash
+cd 001-BookstoreAPI
+```
+to get to the project root
 
 ---
 
@@ -64,9 +56,18 @@ This project is a simple Bookstore API built with TypeScript, Node.js, and Expre
 4. The API will be available at `http://localhost:3000`.
 
 ---
+# API Documentation & Testing
 
-## API Documentation
-- See `src/openAPI.yml` for OpenAPI (Swagger) documentation.
+This project automatically generates an OpenAPI (Swagger) specification from JSDoc comments in the code using `swagger-jsdoc`.
+
+You can view and test the API interactively using Swagger UI:
+
+1. Start the server (using one of the methods above)
+2. Open your browser and go to [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+   - The Swagger UI page will appear, showing all documented endpoints and models.
+   - You can try out requests directly from the browser.
+
+The OpenAPI spec is generated from JSDoc comments in `src/index.ts` and served at `/api-docs`.
 
 ## Notes
 - Configuration (port, etc.) can be adjusted in `src/index.ts`.
