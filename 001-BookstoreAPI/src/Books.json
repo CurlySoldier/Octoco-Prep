@@ -49,10 +49,26 @@
   },
   {
     "id": 7,
-    "createdat": "2025-10-16T17:53:06.040Z",
     "title": "test",
     "author": "test",
     "genre": "test",
-    "price": "123"
+    "price": "123",
+    "createdat": "2025-10-16T17:53:06.040Z"
+  },
+  {
+    "id": 8,
+    "createdat": "2025-10-16T22:15:03.217Z",
+    "title": "string",
+    "author": "string",
+    "genre": "string",
+    "price": 0
+  },
+  {
+    "id": 9,
+    "createdat": "2025-10-16T22:15:11.501Z",
+    "title": "string",
+    "author": "string",
+    "genre": "string",
+    "price": 0
   }
 ]
